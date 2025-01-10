@@ -11,26 +11,25 @@ const chat = new ChatOpenAI({
   maxTokens: 100,
 });
 
-async function retrieveProducts(query) {
-  try {
-    return await Product.find({
-      $or: [
-        { nombre: { $regex: query, $options: "i" } },
-        { descripcion: { $regex: query, $options: "i" } },
-        { categoria: { $regex: query, $options: "i" } },
-        { ingredientes: { $regex: query, $options: "i" } },
-      ],
-      disponible: true,
-    });
-  } catch (error) {
-    console.error("Error al buscar productos:", error);
-    return [];
-  }
-}
+// async function retrieveProducts(query) {
+//   try {
+//     return await Product.find({
+//       $or: [
+//         { nombre: { $regex: query, $options: "i" } },
+//         { descripcion: { $regex: query, $options: "i" } },
+//         { categoria: { $regex: query, $options: "i" } },
+//         { ingredientes: { $regex: query, $options: "i" } },
+//       ],
+//       disponible: true,
+//     });
+//   } catch (error) {
+//     console.error("Error al buscar productos:", error);
+//     return [];
+//   }
+// }
 
 const template = `
-Eres un asistente amable de un restaurante de sushi. Utiliza la siguiente información sobre nuestros productos:
-{context}
+Eres un asistente amable de un restaurante de sushi. 
 
 Mensaje del cliente: {message}
 
@@ -40,18 +39,17 @@ Si no hay productos relevantes para la consulta, ofrece recomendaciones generale
 
 const prompt = PromptTemplate.fromTemplate(template);
 
-const chatAgent = new RunnableSequence.from([
-
-    {
-        context: async (input) => {
-            const products = await retrieveProducts(input.message);
-            return JSON.stringify(products, null, 2);
-        },
-        message:  (input) => input.message,
+const chatAgent = new RunnableSequence({
+  steps: [
+    async (input) => {
+      // Paso inicial: Devolver solo el mensaje
+      return { message: input.message };
     },
-    prompt,
-    chat,
-    new StringOutputParser(),
-])
+    prompt, // Paso 2: Formatear el mensaje con la plantilla
+    chat,   // Paso 3: Generar respuesta usando el modelo de lenguaje
+    new StringOutputParser(), // Paso 4: Formatear la salida como texto
+  ],
+});
+console.log(chatAgent);
 
-module.exports = chatAgent;
+module.exports = { chatAgent };
