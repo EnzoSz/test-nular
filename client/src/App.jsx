@@ -31,8 +31,7 @@ function App() {
           'Accept': 'application/json'
         },
         body: JSON.stringify({ 
-          message: input,
-          history: messages
+          message: input
         })
       });
       
@@ -69,7 +68,7 @@ function App() {
             {msg.text}
           </div>
         ))}
-        {loading && <div className="message bot">Pensando...</div>}
+        {loading && <div className="message bot">Escribiendo...</div>}
         <div ref={messagesEndRef} />
       </div>
       <div className="chat-input">
@@ -77,8 +76,8 @@ function App() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Pregunta sobre nuestro menú..."
+          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
           disabled={loading}
         />
         <button onClick={sendMessage} disabled={loading}>

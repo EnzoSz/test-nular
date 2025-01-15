@@ -15,6 +15,7 @@ const chat = new ChatOpenAI({
   maxTokens: 500,
 });
 
+// Vector Store
 const embeddings = new OpenAIEmbeddings({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -218,7 +219,7 @@ const createChatAgent = async () => {
     llm: chat,
     memory: memory,
     prompt: prompt,
-    verbose: true,
+    // verbose: true,
   });
 
   // Modificar processMessage para manejar pedidos
