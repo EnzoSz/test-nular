@@ -24,6 +24,7 @@ Un chatbot inteligente para un restaurante de sushi que utiliza GPT-4 y procesam
 ```bash
 git clone [https://github.com/EnzoSz/test-nular.git]
 ```
+### Configuración del Backend (server):
 
 2. Configurar el Backend (server):
 ```bash
@@ -68,6 +69,7 @@ npm run seed
 ```bash
 npm run dev
 ```
+### Configuración del Frontend (client):
 
 7. Configurar el Frontend (client):
 ```bash
