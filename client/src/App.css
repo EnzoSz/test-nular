@@ -1,55 +1,100 @@
-
 .chat-container {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 800px;
+  height: 90vh;
+  margin: 20px auto;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.6rem;
 }
 
 .chat-messages {
-  height: 400px;
+  flex: 1;
   overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 20px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  scroll-behavior: smooth;
 }
 
 .message {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 10px;
+  max-width: 80%;
+  margin: 8px 0;
+  padding: 12px 16px;
+  border-radius: 15px;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .user {
-  background-color: #e3f2fd;
-  margin-left: 20%;
+  background-color: #007AFF;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 5px;
 }
 
 .bot {
-  background-color: #f5f5f5;
-  margin-right: 20%;
+  background-color: #E9ECEF;
+  color: #2c3e50;
+  margin-right: auto;
+  border-bottom-left-radius: 5px;
 }
 
 .chat-input {
   display: flex;
   gap: 10px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 10px 14px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #007AFF;
 }
 
 button {
   padding: 10px 20px;
-  background-color: #2196f3;
+  background-color: #007AFF;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 0.95rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #1976d2;
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }

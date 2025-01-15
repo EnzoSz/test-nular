@@ -1,9 +1,7 @@
 const { ChatOpenAI } = require("@langchain/openai");
 const { PromptTemplate } = require("@langchain/core/prompts");
-const { StringOutputParser } = require("@langchain/core/output_parsers");
 const { Product } = require("../models/Product");
-const { ConversationalRetrievalQAChain } = require("langchain/chains");
-// const { MongoDBChatMessageHistory } = require("@langchain/mongodb");
+const { ConversationChain } = require("langchain/chains");
 const { BufferMemory } = require("langchain/memory");
 
 const chat = new ChatOpenAI({
@@ -32,26 +30,32 @@ async function retrieveProducts(query) {
 }
 
 const template = `
-Eres un asistente amable de un restaurante de sushi.
+El siguiente es una conversación amigable con un asistente de un restaurante de sushi.
+El asistente es servicial, amable y muy conocedor de los productos del menú.
 
 Contexto de productos disponibles: {context}
-Historial de conversación: {chat_history}
-Mensaje actual del cliente: {message}
-
-Proporciona una respuesta útil sobre nuestros productos de sushi, ayudando al cliente a hacer su pedido.
-Si no hay productos relevantes para la consulta, ofrece recomendaciones generales del menú.
-Usa la información de los productos disponibles para dar respuestas precisas.
-`;
+Historial de conversación: {history}
+Humano: {input}
+Asistente:`;
 
 const prompt = PromptTemplate.fromTemplate(template);
 
-// Configuración de la memoria para el historial de chat
-const memory = new BufferMemory({
-  memoryKey: "chat_history",
-  returnMessages: true,
-});
-
 const createChatAgent = async () => {
+  // Configurar la memoria
+  const memory = new BufferMemory({
+    returnMessages: true,
+    memoryKey: "history",
+    inputKey: "input",
+  });
+
+  // Crear la cadena de conversación
+  const chain = new ConversationChain({
+    llm: chat,
+    memory: memory,
+    prompt: prompt,
+    verbose: true,
+  });
+
   // Función para procesar mensajes
   const processMessage = async (message) => {
     try {
@@ -61,27 +65,13 @@ const createChatAgent = async () => {
         ? products.map(p => `${p.nombre}: ${p.descripcion} - Precio: ${p.precio}`).join('\n')
         : "No se encontraron productos específicos para esta consulta.";
 
-      // Crear el mensaje completo
-      const fullPrompt = await prompt.format({
-        message,
-        context,
-        chat_history: memory.chatHistory || []
+      // Ejecutar la cadena de conversación
+      const response = await chain.call({
+        input: message,
+        context: context,
       });
 
-      // Obtener respuesta directamente del modelo
-      const response = await chat.invoke(fullPrompt);
-      
-      // Actualizar memoria
-      await memory.saveContext(
-        { input: message },
-        { output: response }
-      );
-
-      // Devolver el contenido del mensaje de manera segura
-      return response.content || // Si es un mensaje directo
-             response.text || // Si viene como text
-             response.kwargs?.content || // Si viene dentro de kwargs
-             "Lo siento, no pude procesar tu mensaje."; // Mensaje por defecto
+      return response.response;
     } catch (error) {
       console.error("Error procesando mensaje:", error);
       throw error;
