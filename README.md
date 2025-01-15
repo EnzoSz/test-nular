@@ -12,7 +12,7 @@ Un chatbot inteligente para un restaurante de sushi que utiliza GPT-4 y procesam
 
 ## Instalación 🚀
 
-### Prerrequisitos
+### Pre-requisitos
 
 - Node.js (v14 o superior)
 - MongoDB
