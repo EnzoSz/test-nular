@@ -243,7 +243,7 @@ Los datos de ejemplo incluyen:
 3. El sistema de pedidos:
    - Valida productos existentes
    - Calcula totales automáticamente
-   - Almacena historial en MongoDB
+   - Almacena pedidos en MongoDB
    - Confirma pedidos con resumen detallado
 
 4. Seguridad:

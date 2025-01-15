@@ -1,12 +1,12 @@
 const { ChatOpenAI } = require("@langchain/openai");
-const { ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate } = require("@langchain/core/prompts");
+const { ChatPromptTemplate } = require("@langchain/core/prompts");
 const { Product } = require("../models/Product");
 const { ConversationChain } = require("langchain/chains");
 const { BufferMemory } = require("langchain/memory");
 const { OpenAIEmbeddings } = require("@langchain/openai");
 const { MemoryVectorStore } = require("langchain/vectorstores/memory");
 const { Document } = require("langchain/document");
-const Order = require('../models/Order');
+const Order = require("../models/Order");
 
 const chat = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,18 +22,18 @@ const embeddings = new OpenAIEmbeddings({
 
 // Función para convertir productos a documentos
 function productsToDocuments(products) {
-  return products.map(product => {
+  return products.map((product) => {
     const content = `
       Nombre: ${product.nombre}
       Descripción: ${product.descripcion}
       Precio: ${product.precio}
       Categoría: ${product.categoria}
-      Ingredientes: ${product.ingredientes.join(', ')}
+      Ingredientes: ${product.ingredientes.join(", ")}
     `.trim();
 
     return new Document({
       pageContent: content,
-      metadata: { id: product._id.toString() }
+      metadata: { id: product._id.toString() },
     });
   });
 }
@@ -51,7 +51,7 @@ async function updateVectorStore(products) {
 // Función para recuperar productos relevantes
 async function retrieveRelevantProducts(query, vectorStore) {
   const results = await vectorStore.similaritySearch(query, 3);
-  return results.map(doc => doc.pageContent).join('\n\n');
+  return results.map((doc) => doc.pageContent).join("\n\n");
 }
 
 // Función para recuperar todos los productos
@@ -104,43 +104,47 @@ async function extractOrderDetails(message) {
     });
 
     const response = await chat.invoke(formattedPrompt);
-    console.log('Respuesta del modelo:', response);
+    console.log("Respuesta del modelo:", response);
 
     try {
       // Extraer JSON de la respuesta
       let jsonStr = response.content;
       // Limpiar el texto para asegurar que solo tenemos JSON
-      jsonStr = jsonStr.replace(/```json\s*|\s*```/g, '').trim();
+      jsonStr = jsonStr.replace(/```json\s*|\s*```/g, "").trim();
       const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-      
+
       if (!jsonMatch) {
-        console.log('No se encontró JSON en la respuesta:', response.content);
+        console.log("No se encontró JSON en la respuesta:", response.content);
         return null;
       }
-      
+
       const orderDetails = JSON.parse(jsonMatch[0]);
-      console.log('OrderDetails parseado:', orderDetails);
-      
+      console.log("OrderDetails parseado:", orderDetails);
+
       // Validación más estricta
-      if (!orderDetails.customerName || 
-          !Array.isArray(orderDetails.items) || 
-          orderDetails.items.length === 0 ||
-          !orderDetails.items.every(item => 
-            item.productName && 
-            typeof item.quantity === 'number' && 
-            item.quantity > 0)) {
-        console.log('Validación fallida para orderDetails:', orderDetails);
+      if (
+        !orderDetails.customerName ||
+        !Array.isArray(orderDetails.items) ||
+        orderDetails.items.length === 0 ||
+        !orderDetails.items.every(
+          (item) =>
+            item.productName &&
+            typeof item.quantity === "number" &&
+            item.quantity > 0
+        )
+      ) {
+        console.log("Validación fallida para orderDetails:", orderDetails);
         return null;
       }
 
       return orderDetails;
     } catch (e) {
-      console.error('Error parseando JSON del pedido:', e);
-      console.log('Respuesta original:', response.content);
+      console.error("Error parseando JSON del pedido:", e);
+      console.log("Respuesta original:", response.content);
       return null;
     }
   } catch (error) {
-    console.error('Error extrayendo detalles del pedido:', error);
+    console.error("Error extrayendo detalles del pedido:", error);
     return null;
   }
 }
@@ -179,35 +183,40 @@ const prompt = ChatPromptTemplate.fromMessages([
 // Función para crear un pedido
 async function createOrder(customerName, items) {
   try {
-    const orderItems = await Promise.all(items.map(async (item) => {
-      const product = await Product.findOne({ 
-        nombre: { $regex: new RegExp(item.productName, 'i') } 
-      });
-      
-      if (!product) {
-        throw new Error(`Producto no encontrado: ${item.productName}`);
-      }
+    const orderItems = await Promise.all(
+      items.map(async (item) => {
+        const product = await Product.findOne({
+          nombre: { $regex: new RegExp(item.productName, "i") },
+        });
 
-      return {
-        productId: product._id,
-        quantity: item.quantity,
-        price: product.precio
-      };
-    }));
+        if (!product) {
+          throw new Error(`Producto no encontrado: ${item.productName}`);
+        }
 
-    const total = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        return {
+          productId: product._id,
+          quantity: item.quantity,
+          price: product.precio,
+        };
+      })
+    );
+
+    const total = orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
     const order = new Order({
       items: orderItems,
       total,
       customerName,
-      status: 'pending'
+      status: "pending",
     });
 
     await order.save();
     return order;
   } catch (error) {
-    console.error('Error al crear el pedido:', error);
+    console.error("Error al crear el pedido:", error);
     throw error;
   }
 }
@@ -235,26 +244,39 @@ const createChatAgent = async () => {
   // Modificar processMessage para manejar pedidos
   const processMessage = async (message) => {
     try {
-      const relevantProducts = await retrieveRelevantProducts(message, vectorStore);
-      
+      const relevantProducts = await retrieveRelevantProducts(
+        message,
+        vectorStore
+      );
+
       // Detectar si es un pedido
-      if (message.toLowerCase().includes('pedido') || 
-          message.toLowerCase().includes('ordenar') || 
-          message.toLowerCase().includes('piezas') ||
-          message.toLowerCase().includes('quiero')) {
-        
+      if (
+        message.toLowerCase().includes("pedido") ||
+        message.toLowerCase().includes("ordenar") ||
+        message.toLowerCase().includes("piezas") ||
+        message.toLowerCase().includes("quiero")
+      ) {
         const orderDetails = await extractOrderDetails(message);
-        console.log('Detalles del pedido extraídos:', orderDetails); // Para debugging
-        
+        console.log("Detalles del pedido extraídos:", orderDetails); // Para debugging
+
         if (!orderDetails) {
           return `Por favor, proporciona tu pedido en este formato:\nNombre: [tu nombre]\nPedido: [cantidad] [producto], [cantidad] [producto]\n\nPor ejemplo:\nNombre: Juan\nPedido: 2 California Roll, 3 Dragon Roll 🍱`;
         }
 
         try {
-          const order = await createOrder(orderDetails.customerName, orderDetails.items);
-          return `¡Excelente! 🎉\n\nResumen del pedido:\nCliente: ${orderDetails.customerName}\n${orderDetails.items.map(item => 
-            `- ${item.quantity}x ${item.productName}`
-          ).join('\n')}\n\nNúmero de orden: ${order._id}\nTotal: $${order.total.toFixed(2)}\n\n¿Hay algo más en lo que pueda ayudarte? 🍣`;
+          const order = await createOrder(
+            orderDetails.customerName,
+            orderDetails.items
+          );
+          return `¡Excelente! 🎉\n\nResumen del pedido:\nCliente: ${
+            orderDetails.customerName
+          }\n${orderDetails.items
+            .map((item) => `- ${item.quantity}x ${item.productName}`)
+            .join("\n")}\n\nNúmero de orden: ${
+            order._id
+          }\nTotal: $${order.total.toFixed(
+            2
+          )}\n\n¿Hay algo más en lo que pueda ayudarte? 🍣`;
         } catch (error) {
           return `Lo siento, hubo un error al procesar tu pedido: ${error.message}\n¿Podrías verificar los nombres de los productos? 😅`;
         }
@@ -263,7 +285,9 @@ const createChatAgent = async () => {
       // Si no es un pedido, respuesta normal
       const response = await chain.call({
         input: message,
-        context: relevantProducts || "No se encontraron productos específicos para esta consulta.",
+        context:
+          relevantProducts ||
+          "No se encontraron productos específicos para esta consulta.",
       });
 
       return response.response;
@@ -273,12 +297,12 @@ const createChatAgent = async () => {
     }
   };
 
-  return { 
+  return {
     processMessage,
     updateProducts: async () => {
       const products = await getAllProducts();
       await updateVectorStore(products);
-    }
+    },
   };
 };
 
