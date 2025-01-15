@@ -250,8 +250,7 @@ Los datos de ejemplo incluyen:
 
 4. Seguridad:
    - Variables de entorno para configuraciones sensibles
-   - Validación de entrada de usuarios
-   - Manejo de errores robusto
+   - Manejo de errores
 
 ## Contribuir 🤝
 
