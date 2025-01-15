@@ -22,7 +22,7 @@ Un chatbot inteligente para un restaurante de sushi que utiliza GPT-4 y procesam
 
 1. Clonar el repositorio:
 ```bash
-git clone [url-del-repositorio]
+git clone [https://github.com/EnzoSz/test-nular.git]
 ```
 
 2. Configurar el Backend (server):
