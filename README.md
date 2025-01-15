@@ -40,7 +40,7 @@ npm install
 ### Pasos para Despliegue:
 1. Crear archivo .env en /server:
 ```env
-MONGO_URI=mongodb://localhost:27017/sushi-restaurant
+MONGO_URI=mongodb://localhost:27017/sushi_db
 OPENAI_API_KEY=tu-api-key-de-openai
 PORT=3000
 ```
