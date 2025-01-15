@@ -32,7 +32,7 @@ cd server
 npm install
 ```
 3. Configurar Docker
-### Prerrequisitos
+### Pre-requisitos
 - Docker
 - Docker Compose
 - Node.js (para ejecutar los seeders)
