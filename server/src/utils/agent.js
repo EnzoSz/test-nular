@@ -257,7 +257,7 @@ const createChatAgent = async () => {
         message.toLowerCase().includes("quiero")
       ) {
         const orderDetails = await extractOrderDetails(message);
-        console.log("Detalles del pedido extraídos:", orderDetails); // Para debugging
+        // console.log("Detalles del pedido extraídos:", orderDetails); // Para debugging
 
         if (!orderDetails) {
           return `Por favor, proporciona tu pedido en este formato:\nNombre: [tu nombre]\nPedido: [cantidad] [producto], [cantidad] [producto]\n\nPor ejemplo:\nNombre: Juan\nPedido: 2 California Roll, 3 Dragon Roll 🍱`;
@@ -299,10 +299,6 @@ const createChatAgent = async () => {
 
   return {
     processMessage,
-    updateProducts: async () => {
-      const products = await getAllProducts();
-      await updateVectorStore(products);
-    },
   };
 };
 

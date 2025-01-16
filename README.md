@@ -22,7 +22,7 @@ Un chatbot inteligente para un restaurante de sushi que utiliza GPT-4 y procesam
 
 1. Clonar el repositorio:
 ```bash
-git clone [https://github.com/EnzoSz/test-nular.git]
+git clone https://github.com/EnzoSz/test-nular.git
 ```
 ### Configuración del Backend (server):
 
@@ -108,6 +108,8 @@ Pedido: 2 California Roll, 3 Dragon Roll
 ## API Endpoints 🛣️
 
 ### POST /api/chat
+
+http://localhost:3000/api/chat
 Procesa mensajes del usuario y retorna respuestas del chatbot.
 
 Request:
