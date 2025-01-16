@@ -67,7 +67,7 @@ npm run seed
 
 6. Iniciar el servidor:
 ```bash
-npm run dev
+npm run start
 ```
 ### Configuración del Frontend (client):
 
